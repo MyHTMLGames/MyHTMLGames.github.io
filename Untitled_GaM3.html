@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en" class=""><head><script>window.livecodes = window.livecodes || {};</script><title>Untitled GaM3</title><meta name="title" content="Untitled GaM3"><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><style id="__livecodes_styles__">/*  
+* Style by D3NN7
+* and Patrick Hlauke (https://codepen.io/patrickhlauke/pen/YaoBop)
+*/
+
+@font-face {
+    font-family: 'Noto Sans Display';
+    font-style: normal;
+    font-weight: 400;
+    src: url(./fonts/NotoSansDisplay-Regular.ttf);
+  }
+  html { background: #111;
+         padding: 1em;
+         font-family: Noto Sans Display;
+         color: #eee;
+         font-size: 1em;
+         line-height: 1;
+         text-shadow: 0.06rem 0 0.06rem #ea36af, -0.125rem 0 0.06rem #75fa69;
+         letter-spacing: 0.125em;
+         animation-duration: 0.01s;
+         animation-name: textflicker;
+         animation-iteration-count: infinite;
+         animation-direction: alternate;
+  }
+  h1 { 
+    font-size: 5em; 
+    text-align: center;
+  }
+
+  a {
+    color: white;
+  }
+
+  @media screen and (min-width: 1200px) {
+    body {
+        margin-left: 20rem;
+        margin-right: 20rem;
+    }
+  }
+
+  @media screen and (min-width: 600px) {
+      body {
+          margin-left: 5em;
+          margin-right: 5em;
+      }
+  }
+  
+  @keyframes textflicker {
+    from {
+      text-shadow: 1px 0 0 #ea36af, -2px 0 0 #75fa69;
+    }
+    to {
+      text-shadow: 2px 0.5px 2px #ea36af, -1px -0.5px 2px #75fa69;
+    }
+  }
+  .device {
+  position: relative;
+  width: 300px;
+  height: 500px;
+  border: 10px solid #333;
+  border-radius: 20px;
+  overflow: hidden;
+  background: white;
+}
+
+.cracked-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Allows clicks to pass through to content */
+  
+  /* Creating the cracks using multiple linear gradients */
+  background: 
+    /* Crack 1: Diagonal */
+    linear-gradient(120deg, transparent 48%, #000 49%, #000 51%, transparent 52%),
+    /* Crack 2: Jagged vertical */
+    linear-gradient(80deg, transparent 49%, #000 50%, transparent 51%),
+    /* Crack 3: Small branch */
+    linear-gradient(-45deg, transparent 40%, #000 41%, transparent 42%);
+}</style><script src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.js" async=""></script><script type="importmap">{
+  "imports": {}
+}</script></head><body>
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>The Shift - Steve's Survival Shackle (High-Res UI)</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #020202;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* CRT Filter Layer */
+        .crt-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 6px 100%;
+            z-index: 8;
+            pointer-events: none;
+        }
+
+        .vignette {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            box-shadow: inset 0 0 140px rgba(0,0,0,0.95);
+            z-index: 7;
+            pointer-events: none;
+        }
+
+        #panic-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(255,0,0,0) 25%, rgba(255,0,0,0.55) 100%);
+            z-index: 6;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.1s ease;
+        }
+
+        /* Shrunken & Streamlined High-Resolution Telemetry HUD */
+        #security-hud {
+            position: absolute;
+            top: calc(8px + env(safe-area-inset-top));
+            left: calc(12px + env(safe-area-inset-left));
+            right: calc(12px + env(safe-area-inset-right));
+            color: #00ffaa;
+            font-family: 'Courier New', Courier, monospace;
+            background: rgba(3, 10, 6, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 10px 16px;
+            border: 1.5px solid #00ff88;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.85), inset 0 0 10px rgba(0, 255, 136, 0.1);
+            border-radius: 10px;
+            pointer-events: auto;
+            z-index: 9;
+            font-size: 0.8rem;
+            line-height: 1.2;
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .hud-flex-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        #chain-hud {
+            margin-top: 2px;
+            font-weight: bold;
+            color: #00fffa;
+            letter-spacing: 0.3px;
+        }
+
+        .stat-row {
+            margin-top: 4px;
+        }
+        .stat-label {
+            font-size: 0.65rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-shadow: 0 0 3px rgba(255,255,255,0.2);
+        }
+        .bar-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            margin-top: 2px;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+        }
+        .bar-fill {
+            width: 100%;
+            height: 100%;
+            transition: width 0.15s ease-out;
+            box-shadow: inset 0 -1px 4px rgba(0,0,0,0.3);
+        }
+        
+        #stamina-bar { background: linear-gradient(90deg, #cc9900, #ffcc00); box-shadow: 0 0 6px #ffcc00; }
+        #health-bar { background: linear-gradient(90deg, #cc2222, #ff3333); box-shadow: 0 0 6px #ff3333; }
+        #food-bar { background: linear-gradient(90deg, #cc7722, #ff9933); box-shadow: 0 0 6px #ff9933; }
+        #water-bar { background: linear-gradient(90deg, #2299cc, #33ccff); box-shadow: 0 0 6px #33ccff; }
+
+        #inventory-badge {
+            margin-top: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #ffffff;
+            border-left: 3px solid #00fffa;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+            display: inline-block;
+        }
+
+        /* Slim Radio Controls */
+        #radio-widget {
+            margin-top: 6px;
+            background: rgba(15, 20, 30, 0.95);
+            border: 1px solid #2ad5ff;
+            border-radius: 6px;
+            padding: 6px 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        }
+        .radio-title {
+            color: #2ad5ff;
+            font-weight: bold;
+            font-size: 0.7rem;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .radio-buttons {
+            display: flex;
+            gap: 6px;
+        }
+        .radio-btn {
+            flex: 1;
+            background: #0f131c;
+            border: 1px solid #2ad5ff;
+            color: #fff;
+            padding: 4px 2px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-family: monospace;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+        .radio-btn.active {
+            background: #2ad5ff;
+            color: #000;
+            box-shadow: 0 0 8px #2ad5ff;
+        }
+
+        /* Surveillance Monitor System Overlays */
+        #monitor-overlay {
+            position: absolute;
+            top: 8%; left: 50%;
+            transform: translateX(-50%);
+            width: 85%; max-width: 750px;
+            height: 60%;
+            background-image: url('https://themes.woocommerce.com/outlet/wp-content/uploads/sites/84/2015/08/Fotolia_65892154_Subscription_Monthly_M.jpg');
+            background-size: cover;
+            background-position: center;
+            border: 6px solid #333;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
+            border-radius: 20px;
+            z-index: 11;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #monitor-screen-tint {
+            width: 100%; height: 100%;
+            background: rgba(0, 255, 100, 0.1);
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: #00ff66;
+            font-family: monospace;
+            text-shadow: 0 0 6px #00ff33;
+            font-size: 1rem;
+        }
+
+        .cam-header {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.75);
+            padding: 10px 16px;
+            border-left: 4px solid #00ff66;
+            font-size: 1rem;
+            border-radius: 4px;
+        }
+
+        .cam-controls {
+            display: flex;
+            gap: 12px;
+            background: rgba(0,0,0,0.8);
+            padding: 14px;
+            border-radius: 12px;
+        }
+
+        .cam-selector-btn {
+            flex: 1;
+            background: #111;
+            border: 2px solid #00ff66;
+            color: #00ff66;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: monospace;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .cam-selector-btn.active {
+            background: #00ff66;
+            color: #000;
+            text-shadow: none;
+            box-shadow: 0 0 14px #00ff66;
+        }
+
+        #youtube-audio-bridge {
+            position: absolute;
+            bottom: 0; right: 0; width: 1px; height: 1px;
+            opacity: 0.01; pointer-events: none; z-index: -1;
+        }
+
+        /* Desktop Grid Compression */
+        @media (min-width: 768px) {
+            .hud-flex-container {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 32px;
+            }
+            .hud-column-left { flex: 1; display: flex; flex-direction: column; }
+            .hud-column-right { flex: 1.3; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; }
+            #radio-widget { margin-top: 4px; }
+            #monitor-overlay { height: 65%; top: 6%; }
+            .stat-row { margin-top: 0; }
+        }
+
+        .status-clear { color: #00ff00; font-weight: bold; }
+        .status-breached { color: #ff3333; font-weight: bold; animation: blink 0.6s infinite; }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+        #interact-prompt {
+            position: absolute;
+            top: 35%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff; background: rgba(2, 25, 50, 0.96);
+            padding: 16px 24px; border-radius: 12px;
+            font-size: 1.05rem; font-weight: bold; text-align: center;
+            pointer-events: none; z-index: 9; display: none;
+            border: 2px solid #00aaff; box-shadow: 0 0 25px rgba(0,170,255,0.5);
+            width: 85%; max-width: 400px;
+            letter-spacing: 0.5px;
+        }
+
+        #score-pop {
+            position: absolute;
+            top: 45%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            color: #00ff55; font-family: monospace;
+            font-size: 2.2rem; font-weight: bold; z-index: 10;
+            pointer-events: none; opacity: 0; transition: all 0.3s ease;
+        }
+
+        #ui-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: radial-gradient(circle, #101824 0%, #030303 100%);
+            color: #fff; text-align: center; z-index: 15;
+            padding: 32px; box-sizing: border-box;
+        }
+
+        h1 {
+            color: #2ad5ff; font-size: 2.4rem; margin-bottom: 10px;
+            letter-spacing: 4px; text-shadow: 0 0 15px rgba(42, 213, 255, 0.6);
+        }
+
+        #ui-overlay p { font-size: 0.95rem; margin: 8px 0; color: #ccc; max-width: 450px; line-height: 1.5; }
+
+        #mobile-joystick-zone {
+            position: absolute;
+            bottom: calc(40px + env(safe-area-inset-bottom));
+            left: calc(45px + env(safe-area-inset-left));
+            width: 140px; height: 140px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2.5px solid rgba(255, 255, 255, 0.25);
+            border-radius: 50%; display: none; touch-action: none; z-index: 12;
+        }
+
+        #mobile-joystick-knob {
+            position: absolute;
+            top: 38px; left: 38px; width: 64px; height: 64px;
+            background: rgba(0, 255, 170, 0.5); border-radius: 50%;
+            box-shadow: 0 0 16px #00ffaa;
+        }
+
+        #mobile-interact-btn {
+            position: absolute;
+            bottom: calc(40px + env(safe-area-inset-bottom));
+            right: calc(40px + env(safe-area-inset-right));
+            width: 100px; height: 100px;
+            background: rgba(0, 150, 255, 0.35); border: 3px solid #2ad5ff;
+            border-radius: 50%; color: #fff; font-weight: bold; font-size: 1.1rem;
+            display: none; justify-content: center; align-items: center; z-index: 12;
+            box-shadow: 0 0 25px rgba(42, 213, 255, 0.4);
+        }
+
+        #mobile-consume-btn {
+            position: absolute;
+            bottom: calc(155px + env(safe-area-inset-bottom));
+            right: calc(40px + env(safe-area-inset-right));
+            width: 85px; height: 85px;
+            background: rgba(235, 100, 0, 0.45); border: 2.5px solid #ffaa00;
+            border-radius: 50%; color: #fff; font-weight: bold; font-size: 0.9rem;
+            display: none; justify-content: center; align-items: center; z-index: 12;
+            box-shadow: 0 0 20px rgba(255, 170, 0, 0.4);
+        }
+
+        #mobile-jump-btn {
+            position: absolute;
+            bottom: calc(40px + env(safe-area-inset-bottom));
+            right: calc(155px + env(safe-area-inset-right));
+            width: 85px; height: 85px;
+            background: rgba(140, 140, 140, 0.25); border: 2.5px solid #ffffff;
+            border-radius: 50%; color: #fff; font-weight: bold; font-size: 0.95rem;
+            display: none; justify-content: center; align-items: center; z-index: 12;
+        }
+
+        #mobile-monitor-btn {
+            position: absolute;
+            bottom: calc(140px + env(safe-area-inset-bottom));
+            right: calc(140px + env(safe-area-inset-right));
+            width: 85px; height: 85px;
+            background: rgba(0, 255, 100, 0.2); border: 2.5px solid #00ff66;
+            border-radius: 50%; color: #fff; font-weight: bold; font-size: 0.85rem;
+            display: none; justify-content: center; align-items: center; z-index: 12;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+
+
+    <div class="crt-overlay"></div>
+    <div class="vignette"></div>
+    <div id="panic-overlay"></div>
+    <div id="score-pop">ACTION DONE</div>
+
+    <div id="security-hud">
+        <div class="hud-flex-container">
+            <div class="hud-column-left">
+                <div style="display: flex; gap: 14px; align-items: baseline;">
+                    <div id="hud-time" style="font-size: 1rem; color:#fff; font-weight:bold; letter-spacing: 0.5px;">SHIFT TIME: 12:00 AM</div>
+                    <div id="hud-timer" style="color: #ff9900; font-weight:bold; font-size:0.75rem;">NEXT REBOOT OVERRIDE: 60s</div>
+                </div>
+                <div id="chain-hud">CHAIN TETHER SLACK: 100%</div>
+                <div>
+                    <div id="inventory-badge">HELD ITEM: NONE</div>
+                    <span style="margin-left: 10px; font-size: 0.7rem; opacity: 0.85; font-weight: bold;">
+                        S: <span id="status-alpha" class="status-clear">SECURE</span> | 
+                        E: <span id="status-beta" class="status-clear">SECURE</span> | 
+                        N: <span id="status-gamma" class="status-clear">SECURE</span>
+                    </span>
+                </div>
+                
+                <div id="radio-widget">
+                    <div class="radio-title" id="track-display">📻 Radio: Stopped</div>
+                    <div class="radio-buttons">
+                        <button class="radio-btn" id="btn-track1" onclick="changeTrack(1)">TRACK 1</button>
+                        <button class="radio-btn" id="btn-track2" onclick="changeTrack(2)">RICK ROLL</button>
+                        <button class="radio-btn" id="btn-track3" onclick="changeTrack(3)">TRACK 3</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hud-column-right">
+                <div class="stat-row">
+                    <span class="stat-label" style="color:#ffcc00;">STEVE'S MOTORS (STAMINA)</span>
+                    <div class="bar-container"><div id="stamina-bar" class="bar-fill"></div></div>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label" style="color:#ff3333;">VITAL INTEGRITY (HEALTH)</span>
+                    <div class="bar-container"><div id="health-bar" class="bar-fill"></div></div>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label" style="color:#ff9933;">METABOLIC BIOMASS (FOOD)</span>
+                    <div class="bar-container"><div id="food-bar" class="bar-fill"></div></div>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label" style="color:#33ccff;">HYDRATION PRESSURE (WATER)</span>
+                    <div class="bar-container"><div id="water-bar" class="bar-fill"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Surveillance Terminal Overlay Component -->
+    <div id="monitor-overlay">
+        <div id="monitor-screen-tint">
+            <div class="cam-header">
+                <div id="cam-id-display">FEED: CAM 1 - SOUTH ANNEX</div>
+                <div style="animation: blink 1s infinite; color: red; font-weight: bold;">● REC</div>
+            </div>
+            <div class="cam-controls">
+                <button class="cam-selector-btn active" id="btn-cam-alpha" onclick="switchSecurityCamera('alpha')">CAM 1</button>
+                <button class="cam-selector-btn" id="btn-cam-beta" onclick="switchSecurityCamera('beta')">CAM 2</button>
+                <button class="cam-selector-btn" id="btn-cam-gamma" onclick="switchSecurityCamera('gamma')">CAM 3</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="youtube-audio-bridge"></div>
+    <div id="interact-prompt">INTERACT PROMPT</div>
+
+    <div id="ui-overlay">
+        <h1>STEVE'S SHACKLE SHIFT</h1>
+        <p style="color: #ffcc00; font-weight: bold; font-size:0.85rem; letter-spacing: 2px;">[ SURVIVAL EXTENSION V2 - HD INTERFACE ]</p>
+        <p id="instructions" style="color: #00ffaa; margin-top:20px; font-weight:bold; text-shadow: 0 0 8px #00ffaa; font-size: 1.1rem; cursor: pointer;">TAP TO COUPLE HARNESS &amp; START</p>
+        <p style="font-size: 0.85rem; color: #aaa; margin-top: 15px; line-height: 1.5;">
+            Stamina is brutal. Track your health, food, and water. Grab supplies from the Fridge; cook raw meat in the Microwave before consuming!
+        </p>
+    </div>
+
+    <div id="mobile-joystick-zone"><div id="mobile-joystick-knob"></div></div>
+    <div id="mobile-interact-btn">ACTION</div>
+    <div id="mobile-consume-btn">EAT/DRINK</div>
+    <div id="mobile-jump-btn">JUMP</div>
+    <div id="mobile-monitor-btn">MONITOR</div>
+
+    <div id="canvas-container"></div>
+
+    <script>
+        let scene, camera, renderer;
+        let yawObject, pitchObject;
+        let flashlight, ambientLight;
+        let gameActive = false, gameEnded = false;
+
+        // Security Surveillance Setup
+        let securityCameras = {};
+        let activeCameraKey = 'player'; 
+        let isViewingMonitor = false;
+
+        // Control Matrices
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, isSprinting = false;
+        let moveVector = { x: 0, y: 0 };
+        let joyTouchId = null, lookTouchId = null;
+        let joyStartX = 0, joyStartY = 0, lastLookX = 0, lastLookY = 0;
+
+        // Kinematic Vertical System
+        let isJumping = false;
+        let velocityY = 0;
+        const gravity = 0.014;
+        const jumpStrength = 0.28;
+
+        // BRUTAL Survival Core Stats
+        let health = 100.0;
+        let food = 100.0;
+        let water = 100.0;
+        let currentStamina = 100.0;
+
+        const maxStamina = 100.0;
+        const staminaDrainRate = 1.6;  
+        const staminaRegenRate = 0.12; 
+        
+        let walkSpeed = 0.14;
+        let sprintSpeed = 0.28;
+        let activeSpeedModifier = walkSpeed;
+        const roomHalfSize = 32.0;
+
+        let shakeStrength = 0.0;
+        const shakeDecay = 0.88;
+
+        const anchorPos = new THREE.Vector3(0, 0, 0); 
+        const maxChainLength = 32.0; 
+        let chainLineMesh;
+        let chainIsTaut = false;
+
+        let steveMesh;
+        let leftArmGroup, rightArmGroup, leftLegGroup, rightLegGroup;
+
+        let shiftStartTime = Date.now();
+        let totalGameDuration = 360000; 
+        let lastSecondsCount = 0;
+        let currentHour = 0; 
+        let breachCountdown = 60; 
+        let currentBreachPhase = false;
+        let phaseTimerLimit = 25; 
+
+        // Appliances Data Structures
+        const fridgePos = new THREE.Vector3(-6, 0, -6);
+        const microwavePos = new THREE.Vector3(-6, 0, -3);
+        let microwaveLight;
+        let heldItem = "None"; 
+        let isFridgeToggle = false; 
+        let microwaveCooking = false;
+        let microwaveTimer = 0;
+
+        let doors = {
+            alpha: { pos: new THREE.Vector3(0, 0, 31.5), locked: true, mesh: null, light: null, name: "SOUTH" },
+            beta: { pos: new THREE.Vector3(31.5, 0, 0), locked: true, mesh: null, light: null, name: "EAST" },
+            gamma: { pos: new THREE.Vector3(0, 0, -31.5), locked: true, mesh: null, light: null, name: "NORTH" }
+        };
+        let currentInteractiveTarget = null; 
+
+        const anomalyImages = {
+            alpha: 'https://i.ebayimg.com/images/g/n8IAAeSwcM9p3wAy/s-l1200.jpg',
+            beta: 'https://www.wiztoyz.com/media/catalog/product/cache/36/image/672x/040ec09b1e35df139433887a97daa66f/i/m/image_image_image_t-plush-freddy-bonnie.jpg',
+            gamma: 'https://www.vhv.rs/dpng/d/429-4298426/freddy-fazbear-fnaf-plushies-png-download-freddy-plush.png'
+        };
+        let anomalies = [];
+
+        let audioCtx = null, humOsc = null;
+        let alarmInterval = null, lastChainClankTime = 0;
+        let currentActiveTrack = 0; 
+        let ytPlayer = null; 
+
+        const trackIds = { 1: "41O_MydqxTU", 2: "dQw4w9WgXcQ", 3: "AibtyCAhyQE" };
+
+        const overlay = document.getElementById('ui-overlay');
+        const instructionsText = document.getElementById('instructions');
+        const interactPrompt = document.getElementById('interact-prompt');
+        const scorePop = document.getElementById('score-pop');
+        const panicOverlay = document.getElementById('panic-overlay');
+        const monitorOverlay = document.getElementById('monitor-overlay');
+
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('youtube-audio-bridge', {
+                height: '1', width: '1', videoId: '',
+                host: 'https://www.youtube-nocookie.com',
+                playerVars: { 'autoplay': 0, 'controls': 0, 'disablekb': 1, 'fs': 0, 'rel': 0, 'showinfo': 0, 'modestbranding': 1 }
+            });
+        }
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x0c0f12, 0.05); 
+
+            yawObject = new THREE.Group();
+            pitchObject = new THREE.Group();
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            pitchObject.position.set(0, 1.6, 0);
+            camera.position.set(0, 0.6, 3.4); 
+            pitchObject.add(camera);
+            yawObject.add(pitchObject);
+            scene.add(yawObject);
+            yawObject.position.set(0, 0, 4);
+
+            setupOuterRoomSecurityCameras();
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3)); 
+            renderer.shadowMap.enabled = true;
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            ambientLight = new THREE.AmbientLight(0x1a2228); 
+            scene.add(ambientLight);
+
+            flashlight = new THREE.SpotLight(0xfff4db, 4.0, 50, Math.PI / 3.6, 0.5, 1);
+            flashlight.castShadow = true;
+            pitchObject.add(flashlight);
+            flashlight.position.set(0, 0, 0);
+            flashlight.target.position.set(0, 0, -1);
+            pitchObject.add(flashlight.target);
+
+            buildOpenOfficeSuite();
+            setupSuiteSecurityDoors();
+            setupPhysicalChainAnchor();
+            buildKitchenAppliances();
+            
+            steveMesh = buildProceduralSteve();
+            yawObject.add(steveMesh);
+
+            spawnRadioAsset();
+
+            document.getElementById('mobile-joystick-zone').style.display = 'block';
+            document.getElementById('mobile-interact-btn').style.display = 'flex';
+            document.getElementById('mobile-jump-btn').style.display = 'flex';
+            document.getElementById('mobile-monitor-btn').style.display = 'flex';
+            
+            setupMobileEvents();
+            setupDesktopEvents(); 
+
+            window.addEventListener('resize', onWindowResize, false);
+            animate();
+        }
+
+        function setupOuterRoomSecurityCameras() {
+            const aspect = window.innerWidth / window.innerHeight;
+            let camAlpha = new THREE.PerspectiveCamera(65, aspect, 0.1, 200);
+            camAlpha.position.set(0, 7.5, 52); camAlpha.lookAt(0, 1.5, 32);
+            securityCameras['alpha'] = camAlpha;
+
+            let camBeta = new THREE.PerspectiveCamera(65, aspect, 0.1, 200);
+            camBeta.position.set(52, 7.5, 0); camBeta.lookAt(32, 1.5, 0);
+            securityCameras['beta'] = camBeta;
+
+            let camGamma = new THREE.PerspectiveCamera(65, aspect, 0.1, 200);
+            camGamma.position.set(0, 7.5, -52); camGamma.lookAt(0, 1.5, -32);
+            securityCameras['gamma'] = camGamma;
+        }
+
+        function toggleMonitorView() {
+            if (!gameActive || gameEnded) return;
+            isViewingMonitor = !isViewingMonitor;
+            
+            if (isViewingMonitor) {
+                monitorOverlay.style.display = 'flex';
+                switchSecurityCamera('alpha');
+            } else {
+                monitorOverlay.style.display = 'none';
+                activeCameraKey = 'player';
+            }
+            playLockClickAudio();
+        }
+
+        function switchSecurityCamera(key) {
+            if(!isViewingMonitor) return;
+            activeCameraKey = key;
+            document.querySelectorAll('.cam-selector-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-cam-${key}`).classList.add('active');
+            const labels = { alpha: "CAM 1 - SOUTH ANNEX", beta: "CAM 2 - EAST WING", gamma: "CAM 3 - NORTH ANNEX" };
+            document.getElementById('cam-id-display').innerText = `FEED: ${labels[key]}`;
+        }
+
+        function buildProceduralSteve() {
+            const steveGroup = new THREE.Group();
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0xc68e63, roughness: 0.8 }); 
+            const hairMat = new THREE.MeshStandardMaterial({ color: 0x482e1d, roughness: 0.8 }); 
+            const shirtMat = new THREE.MeshStandardMaterial({ color: 0x00a3a3, roughness: 0.8 }); 
+            const pantsMat = new THREE.MeshStandardMaterial({ color: 0x3c59a6, roughness: 0.8 }); 
+
+            const torsoGeo = new THREE.BoxGeometry(0.5, 0.7, 0.25);
+            const torso = new THREE.Mesh(torsoGeo, shirtMat);
+            torso.position.y = 0.75; torso.castShadow = true;
+            steveGroup.add(torso);
+
+            const headGeo = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+            const head = new THREE.Mesh(headGeo, skinMat);
+            head.position.y = 1.3; head.castShadow = true;
+            steveGroup.add(head);
+
+            const hairGeo = new THREE.BoxGeometry(0.42, 0.16, 0.42);
+            const hairCap = new THREE.Mesh(hairGeo, hairMat);
+            hairCap.position.set(0, 1.43, -0.01);
+            steveGroup.add(hairCap);
+
+            const armGeo = new THREE.BoxGeometry(0.2, 0.65, 0.2);
+            leftArmGroup = new THREE.Group(); leftArmGroup.position.set(-0.35, 1.0, 0);
+            const leftArm = new THREE.Mesh(armGeo, shirtMat); leftArm.position.y = -0.28; leftArm.castShadow = true;
+            leftArmGroup.add(leftArm); steveGroup.add(leftArmGroup);
+
+            rightArmGroup = new THREE.Group(); rightArmGroup.position.set(0.35, 1.0, 0);
+            const rightArm = new THREE.Mesh(armGeo, shirtMat); rightArm.position.y = -0.28; rightArm.castShadow = true;
+            rightArmGroup.add(rightArm); steveGroup.add(rightArmGroup);
+
+            const legGeo = new THREE.BoxGeometry(0.22, 0.65, 0.22);
+            leftLegGroup = new THREE.Group(); leftLegGroup.position.set(-0.13, 0.4, 0);
+            const leftLeg = new THREE.Mesh(legGeo, pantsMat); leftLeg.position.y = -0.28; leftLeg.castShadow = true;
+            leftLegGroup.add(leftLeg); steveGroup.add(leftLegGroup);
+
+            rightLegGroup = new THREE.Group(); rightLegGroup.position.set(0.13, 0.4, 0);
+            const rightLeg = new THREE.Mesh(legGeo, pantsMat); rightLeg.position.y = -0.28; rightLeg.castShadow = true;
+            rightLegGroup.add(rightLeg); steveGroup.add(rightLegGroup);
+
+            return steveGroup;
+        }
+
+        function buildKitchenAppliances() {
+            const metallicMat = new THREE.MeshStandardMaterial({ color: 0xd0d5dd, metalness: 0.8, roughness: 0.2 });
+            const darkMat = new THREE.MeshStandardMaterial({ color: 0x1c1e22, roughness: 0.5 });
+
+            // Fridge Creation
+            const fridgeGroup = new THREE.Group();
+            const bodyGeo = new THREE.BoxGeometry(1.6, 3.2, 1.6);
+            const fridgeBody = new THREE.Mesh(bodyGeo, metallicMat);
+            fridgeBody.position.y = 1.6; fridgeBody.castShadow = true; fridgeGroup.add(fridgeBody);
+
+            const handleGeo = new THREE.BoxGeometry(0.1, 0.8, 0.1);
+            const handle = new THREE.Mesh(handleGeo, darkMat);
+            handle.position.set(0.85, 1.8, 0.4); fridgeGroup.add(handle);
+            fridgeGroup.position.copy(fridgePos); scene.add(fridgeGroup);
+
+            // Microwave Creation
+            const microGroup = new THREE.Group();
+            const standGeo = new THREE.BoxGeometry(1.4, 1.0, 1.2);
+            const stand = new THREE.Mesh(standGeo, darkMat);
+            stand.position.y = 0.5; stand.receiveShadow = true; microGroup.add(stand);
+
+            const microGeo = new THREE.BoxGeometry(1.1, 0.6, 0.8);
+            const microMesh = new THREE.Mesh(microGeo, metallicMat);
+            microMesh.position.y = 1.3; microMesh.castShadow = true; microGroup.add(microMesh);
+
+            const windowGeo = new THREE.BoxGeometry(0.02, 0.35, 0.5);
+            const microWindow = new THREE.Mesh(windowGeo, new THREE.MeshStandardMaterial({ color: 0x111, roughness: 0.1 }));
+            microWindow.position.set(0.56, 1.3, -0.05); microGroup.add(microWindow);
+
+            microwaveLight = new THREE.PointLight(0xffaa00, 0, 3);
+            microwaveLight.position.set(0.6, 1.3, 0); microGroup.add(microwaveLight);
+
+            microGroup.position.copy(microwavePos);
+            microGroup.rotation.y = Math.PI / 2;
+            scene.add(microGroup);
+        }
+
+        function spawnRadioAsset() {
+            const loader = new THREE.TextureLoader();
+            loader.crossOrigin = 'anonymous';
+            loader.load('https://www.pngall.com/wp-content/uploads/2016/07/Radio-Download-PNG.png', (texture) => {
+                const radioMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+                const radioSprite = new THREE.Sprite(radioMat);
+                radioSprite.position.set(0, 0.95, 0); radioSprite.scale.set(1.4, 1.0, 1.0); scene.add(radioSprite);
+
+                const radioLight = new THREE.PointLight(0x2ad5ff, 0.8, 6);
+                radioLight.position.set(0, 1.2, 0); scene.add(radioLight);
+            });
+        }
+
+        function buildOpenOfficeSuite() {
+            const wallTex = createNoiseTexture('#b0aba0', '#9e9687', 1); 
+            const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.95 });
+            const carpetTex = createNoiseTexture('#222528', '#16181a', 4); 
+            const floorMat = new THREE.MeshStandardMaterial({ map: carpetTex, roughness: 0.9 });
+
+            const floorGeo = new THREE.PlaneGeometry(150, 150);
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+
+            const wallHeight = 4.5;
+            const coreSegmentGeo = new THREE.BoxGeometry(26, wallHeight, 1);
+
+            let wallS_Left = new THREE.Mesh(coreSegmentGeo, wallMat); wallS_Left.position.set(-19, wallHeight/2, roomHalfSize + 0.5); scene.add(wallS_Left);
+            let wallS_Right = new THREE.Mesh(coreSegmentGeo, wallMat); wallS_Right.position.set(19, wallHeight/2, roomHalfSize + 0.5); scene.add(wallS_Right);
+            let wallN_Left = new THREE.Mesh(coreSegmentGeo, wallMat); wallN_Left.position.set(-19, wallHeight/2, -roomHalfSize - 0.5); scene.add(wallN_Left);
+            let wallN_Right = new THREE.Mesh(coreSegmentGeo, wallMat); wallN_Right.position.set(19, wallHeight/2, -roomHalfSize - 0.5); scene.add(wallN_Right);
+
+            let wallE_Top = new THREE.Mesh(coreSegmentGeo, wallMat); wallE_Top.rotation.y = Math.PI / 2; wallE_Top.position.set(roomHalfSize + 0.5, wallHeight/2, -19); scene.add(wallE_Top);
+            let wallE_Bot = new THREE.Mesh(coreSegmentGeo, wallMat); wallE_Bot.rotation.y = Math.PI / 2; wallE_Bot.position.set(roomHalfSize + 0.5, wallHeight/2, 19); scene.add(wallE_Bot);
+
+            const solidWallGeo = new THREE.BoxGeometry(68, wallHeight, 1);
+            let wallW = new THREE.Mesh(solidWallGeo, wallMat); wallW.rotation.y = Math.PI / 2; wallW.position.set(-roomHalfSize - 0.5, wallHeight/2, 0); scene.add(wallW);
+
+            const outerBoundsGeo = new THREE.BoxGeometry(150, wallHeight, 1);
+            let outerN = new THREE.Mesh(outerBoundsGeo, wallMat); outerN.position.set(0, wallHeight/2, -75); scene.add(outerN);
+            let outerS = new THREE.Mesh(outerBoundsGeo, wallMat); outerS.position.set(0, wallHeight/2, 75); scene.add(outerS);
+            let outerE = new THREE.Mesh(outerBoundsGeo, wallMat); outerE.rotation.y = Math.PI/2; outerE.position.set(75, wallHeight/2, 0); scene.add(outerE);
+        }
+
+        function createNoiseTexture(col1, col2, scale) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = col1; ctx.fillRect(0, 0, 128, 128);
+            ctx.fillStyle = col2;
+            for (let i = 0; i < 2000; i++) {
+                let x = Math.random() * 128; let y = Math.random() * 128; ctx.fillRect(x, y, scale, scale);
+            }
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function setupPhysicalChainAnchor() {
+            const blockGeo = new THREE.CylinderGeometry(0.6, 0.8, 0.6, 8);
+            const ironMat = new THREE.MeshStandardMaterial({ color: 0x181a1d, metalness: 0.8, roughness: 0.4 });
+            const anchorMesh = new THREE.Mesh(blockGeo, ironMat);
+            anchorMesh.position.set(0, 0.35, 0); scene.add(anchorMesh);
+
+            const chainLineGeo = new THREE.BufferGeometry();
+            const positions = new Float32Array(2 * 3); 
+            chainLineGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const chainLineMat = new THREE.LineBasicMaterial({ color: 0x0c0e12, linewidth: 6 });
+            chainLineMesh = new THREE.Line(chainLineGeo, chainLineMat); scene.add(chainLineMesh);
+        }
+
+        function setupSuiteSecurityDoors() {
+            const doorGeo = new THREE.BoxGeometry(12, 3.8, 0.4);
+            const doorMat = new THREE.MeshStandardMaterial({ color: 0x1f242a, roughness: 0.7 }); 
+
+            Object.keys(doors).forEach(key => {
+                let d = doors[key];
+                let doorContainer = new THREE.Group();
+
+                let doorMesh = new THREE.Mesh(doorGeo, doorMat);
+                doorMesh.position.y = 1.9; doorContainer.add(doorMesh);
+
+                let lightGeo = new THREE.SphereGeometry(0.18, 8, 8);
+                let lightMat = new THREE.MeshBasicMaterial({ color: 0x00ff44 }); 
+                let indicatorLight = new THREE.Mesh(lightGeo, lightMat);
+                indicatorLight.position.set(0, 3.9, 0);
+                
+                doorContainer.add(indicatorLight);
+                doorContainer.position.copy(d.pos);
+
+                if (key === "alpha" || key === "gamma") { doorContainer.rotation.y = 0; } else { doorContainer.rotation.y = Math.PI / 2; }
+                scene.add(doorContainer);
+                d.mesh = doorContainer; d.light = indicatorLight;
+            });
+        }
+
+        function changeTrack(trackId) {
+            if (!audioCtx) initAudio();
+            if (!ytPlayer || typeof ytPlayer.loadVideoById !== 'function') return;
+            
+            if (currentActiveTrack === trackId) {
+                currentActiveTrack = 0; document.getElementById('track-display').innerText = "📻 Radio: Stopped";
+                removeActiveButtonStyles(); ytPlayer.stopVideo(); return;
+            }
+
+            currentActiveTrack = trackId; removeActiveButtonStyles();
+            document.getElementById(`btn-track${trackId}`).classList.add('active');
+            let labels = ["Stopped", "Track 1", "Never Gonna Give You Up", "Track 3"];
+            document.getElementById('track-display').innerText = `📻 Track: ${labels[trackId]}`;
+            ytPlayer.loadVideoById(trackIds[trackId]); ytPlayer.playVideo();
+        }
+
+        function removeActiveButtonStyles() {
+            for(let i=1; i<=3; i++) document.getElementById(`btn-track${i}`).classList.remove('active');
+        }
+
+        function triggerSecurityBreach() {
+            currentBreachPhase = true; breachCountdown = phaseTimerLimit; playAlarmAudio(true);
+            let unlockCount = currentHour >= 3 ? 2 : 1;
+            let keys = Object.keys(doors); keys.sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < unlockCount; i++) {
+                let targetDoor = doors[keys[i]]; targetDoor.locked = false;
+                targetDoor.light.material.color.setHex(0xff0033); targetDoor.mesh.position.y = 3.8; 
+                updateHUDDoorStatus(keys[i], false);
+            }
+        }
+
+        function lockDoor(key) {
+            let d = doors[key]; if (!d || d.locked) return;
+            d.locked = true; d.light.material.color.setHex(0x00ff44); d.mesh.position.y = 0; 
+            updateHUDDoorStatus(key, true); playLockClickAudio(); triggerScoreNotification("DOOR SECURED");
+
+            let allSecure = Object.keys(doors).every(k => doors[k].locked);
+            if (allSecure && currentBreachPhase) { currentBreachPhase = false; breachCountdown = 60; playAlarmAudio(false); }
+        }
+
+        function triggerScoreNotification(msg) {
+            scorePop.innerText = msg; scorePop.style.opacity = '1';
+            scorePop.style.transform = 'translate(-50%, -50%) scale(1.1)';
+            setTimeout(() => { scorePop.style.opacity = '0'; scorePop.style.transform = 'translate(-50%, -50%) scale(0.5)'; }, 800);
+        }
+
+        function updateHUDDoorStatus(key, isLocked) {
+            let el = document.getElementById(`status-${key}`);
+            if (isLocked) { el.innerText = "SECURE"; el.className = "status-clear"; } else { el.innerText = "OPEN"; el.className = "status-breached"; }
+        }
+
+        function unleashAnomalies() {
+            const loader = new THREE.TextureLoader(); loader.crossOrigin = 'anonymous'; 
+
+            Object.keys(doors).forEach(key => {
+                let d = doors[key];
+                if (!d.locked) {
+                    let texture = loader.load(anomalyImages[key]);
+                    let spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+                    let anomaly = new THREE.Sprite(spriteMat);
+                    anomaly.scale.set(4.5, 4.5, 1);
+                    
+                    if(key === 'alpha') anomaly.position.set(0, 2.0, 68);
+                    if(key === 'beta') anomaly.position.set(68, 2.0, 0);
+                    if(key === 'gamma') anomaly.position.set(0, 2.0, -68);
+                    
+                    anomaly.userData = { seed: Math.random() * 40, doorKey: key };
+                    scene.add(anomaly); anomalies.push(anomaly);
+                }
+            });
+            currentBreachPhase = false; breachCountdown = 60; playAlarmAudio(false);
+        }
+
+        function executeActionRouting() {
+            if (!currentInteractiveTarget) return;
+            
+            if (currentInteractiveTarget === 'fridge') {
+                isFridgeToggle = !isFridgeToggle;
+                heldItem = isFridgeToggle ? "Raw Food" : "Water";
+                document.getElementById('inventory-badge').innerText = `HELD ITEM: ${heldItem.toUpperCase()}`;
+                playLockClickAudio(); triggerScoreNotification(`GRABBED ${heldItem.toUpperCase()}`);
+            } 
+            else if (currentInteractiveTarget === 'microwave') {
+                if (heldItem === "Raw Food") {
+                    microwaveCooking = true; microwaveTimer = 3; 
+                    microwaveLight.intensity = 2.5;
+                    heldItem = "None"; document.getElementById('inventory-badge').innerText = `HELD ITEM: COOKING...`;
+                    playLockClickAudio();
+                } else {
+                    triggerScoreNotification("NEED RAW FOOD");
+                }
+            } 
+            else {
+                lockDoor(currentInteractiveTarget);
+            }
+            updateMobileUIElements();
+        }
+
+        function executeConsumption() {
+            if (heldItem === "None") return;
+            if (heldItem === "Water") {
+                water = Math.min(100, water + 45); triggerScoreNotification("HYDRATED +45");
+            } else if (heldItem === "Raw Food") {
+                food = Math.min(100, food + 15); health = Math.max(0, health - 18); 
+                triggerScoreNotification("TOXIC RAW MEAT! HEALTH LOST");
+            } else if (heldItem === "Cooked Food") {
+                food = Math.min(100, food + 50); health = Math.min(100, health + 15);
+                triggerScoreNotification("COOKED MEAL RESTORED METABOLICS");
+            }
+            heldItem = "None"; document.getElementById('inventory-badge').innerText = `HELD ITEM: NONE`;
+            playLockClickAudio(); updateMobileUIElements();
+        }
+
+        function processJump() {
+            if (!isJumping && gameActive && !gameEnded) { isJumping = true; velocityY = jumpStrength; }
+        }
+
+        overlay.addEventListener('click', () => {
+            if (gameEnded) return;
+            if (!gameActive) { initAudio(); startGameSession(); }
+        });
+
+        function startGameSession() {
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.style.display = 'none'; }, 400);
+            document.getElementById('security-hud').style.display = 'block';
+            gameActive = true; shiftStartTime = Date.now(); updateMobileUIElements();
+        }
+
+        function updateMobileUIElements() {
+            const consumeBtn = document.getElementById('mobile-consume-btn');
+            if (heldItem !== "None" && heldItem !== "Cooking...") {
+                consumeBtn.style.display = "flex";
+            } else {
+                consumeBtn.style.display = "none";
+            }
+
+            const interactBtn = document.getElementById('mobile-interact-btn');
+            if (currentInteractiveTarget === 'fridge') interactBtn.innerText = "FRIDGE";
+            else if (currentInteractiveTarget === 'microwave') interactBtn.innerText = "COOK";
+            else if (currentInteractiveTarget) interactBtn.innerText = "LOCK";
+            else interactBtn.innerText = "ACTION";
+        }
+
+        document.getElementById('mobile-monitor-btn').addEventListener('touchstart', (e) => { e.preventDefault(); toggleMonitorView(); }, {passive: false});
+        document.getElementById('mobile-interact-btn').addEventListener('touchstart', (e) => { e.preventDefault(); executeActionRouting(); }, {passive: false});
+        document.getElementById('mobile-consume-btn').addEventListener('touchstart', (e) => { e.preventDefault(); executeConsumption(); }, {passive: false});
+
+        function setupDesktopEvents() {
+            window.addEventListener('keydown', (e) => {
+                if (!gameActive) return;
+                switch (e.code) {
+                    case 'KeyW': moveForward = true; break;
+                    case 'KeyS': moveBackward = true; break;
+                    case 'KeyA': moveLeft = true; break;
+                    case 'KeyD': moveRight = true; break;
+                    case 'KeyQ': toggleMonitorView(); break;
+                    case 'Digit1': switchSecurityCamera('alpha'); break;
+                    case 'Digit2': switchSecurityCamera('beta'); break;
+                    case 'Digit3': switchSecurityCamera('gamma'); break;
+                    case 'Space': processJump(); e.preventDefault(); break;
+                    case 'KeyE': executeActionRouting(); break;
+                    case 'KeyF': executeConsumption(); break;
+                }
+            });
+            window.addEventListener('keyup', (e) => {
+                switch (e.code) {
+                    case 'KeyW': moveForward = false; break;
+                    case 'KeyS': moveBackward = false; break;
+                    case 'KeyA': moveLeft = false; break;
+                    case 'KeyD': moveRight = false; break;
+                }
+            });
+        }
+
+        function setupMobileEvents() {
+            const joyZone = document.getElementById('mobile-joystick-zone');
+            const joyKnob = document.getElementById('mobile-joystick-knob');
+            const interactBtn = document.getElementById('mobile-interact-btn');
+            const jumpBtn = document.getElementById('mobile-jump-btn');
+            const monitorBtn = document.getElementById('mobile-monitor-btn');
+            const consumeBtn = document.getElementById('mobile-consume-btn');
+            const maxRadius = 55;
+
+            jumpBtn.addEventListener('touchstart', (e) => { e.preventDefault(); processJump(); }, {passive: false});
+
+            window.addEventListener('touchstart', (e) => {
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    let t = e.changedTouches[i];
+                    if (t.clientX < window.innerWidth / 2 && joyTouchId === null) {
+                        if (t.clientY < 160) continue; 
+                        joyTouchId = t.identifier; joyStartX = t.clientX; joyStartY = t.clientY;
+                        joyZone.style.left = `${joyStartX - 70}px`; joyZone.style.bottom = `${window.innerHeight - joyStartY - 70}px`;
+                    } else if (t.clientX >= window.innerWidth / 2 && lookTouchId === null) {
+                        if(t.target === interactBtn || t.target === jumpBtn || t.target === monitorBtn || t.target === consumeBtn) continue;
+                        lookTouchId = t.identifier; lastLookX = t.clientX; lastLookY = t.clientY;
+                    }
+                }
+            }, {passive: true});
+
+            window.addEventListener('touchmove', (e) => {
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    let t = e.changedTouches[i];
+                    if (t.identifier === joyTouchId) {
+                        let dx = t.clientX - joyStartX; let dy = t.clientY - joyStartY;
+                        let distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance > maxRadius) { dx = (dx / distance) * maxRadius; dy = (dy / distance) * maxRadius; }
+                        joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+                        moveVector.x = dx / maxRadius; moveVector.y = dy / maxRadius;
+                        isSprinting = (distance > maxRadius * 0.75);
+                    } else if (t.identifier === lookTouchId) {
+                        let dx = t.clientX - lastLookX; let dy = t.clientY - lastLookY;
+                        yawObject.rotation.y -= dx * 0.007; pitchObject.rotation.x -= dy * 0.005;
+                        pitchObject.rotation.x = Math.max(-Math.PI / 6, Math.min(Math.PI / 4, pitchObject.rotation.x));
+                        lastLookX = t.clientX; lastLookY = t.clientY;
+                    }
+                }
+            }, {passive: true});
+
+            window.addEventListener('touchend', (e) => {
+                for (let i = 0; i < e.changedTouches.length; i++) {
+                    let t = e.changedTouches[i];
+                    if (t.identifier === joyTouchId) {
+                        joyTouchId = null; moveVector = { x: 0, y: 0 }; isSprinting = false;
+                        joyKnob.style.transform = 'translate(0px, 0px)';
+                        joyZone.style.left = '45px'; joyZone.style.bottom = '40px';
+                    } else if (t.identifier === lookTouchId) { lookTouchId = null; }
+                }
+            }, {passive: true});
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (gameActive && !gameEnded) {
+                let timeToken = Date.now();
+                let elapsed = timeToken - shiftStartTime;
+
+                if (elapsed >= totalGameDuration) { triggerWinState(); return; }
+                if (health <= 0) { triggerGameOver("STEVE CRUMBLED UNDER METABOLIC FAILURE"); return; }
+
+                let elapsedSeconds = Math.floor(elapsed / 1000);
+                if (elapsedSeconds !== lastSecondsCount) {
+                    lastSecondsCount = elapsedSeconds; breachCountdown--;
+                    currentHour = Math.floor(elapsedSeconds / 240);
+                    document.getElementById('hud-time').innerText = `SHIFT TIME: 0${currentHour}:00 AM`;
+
+                    food = Math.max(0, food - 0.45);
+                    water = Math.max(0, water - 0.65);
+
+                    if (food <= 0 || water <= 0) { health = Math.max(0, health - 4.0); }
+
+                    if (microwaveCooking) {
+                        microwaveTimer--;
+                        if (microwaveTimer <= 0) {
+                            microwaveCooking = false; heldItem = "Cooked Food";
+                            microwaveLight.intensity = 0;
+                            document.getElementById('inventory-badge').innerText = `HELD ITEM: COOKED FOOD`;
+                            triggerScoreNotification("MICROWAVE BEEP: COOKED");
+                            updateMobileUIElements();
+                        }
+                    }
+
+                    if (!currentBreachPhase) {
+                        document.getElementById('hud-timer').style.color = '#ff9900';
+                        document.getElementById('hud-timer').innerText = `NEXT REBOOT OVERRIDE: ${breachCountdown}s`;
+                        if (breachCountdown <= 0) triggerSecurityBreach();
+                    } else {
+                        document.getElementById('hud-timer').style.color = '#ff1133';
+                        document.getElementById('hud-timer').innerText = `BYPASS OVERRIDE IN: ${breachCountdown}s`;
+                        if (breachCountdown <= 0) unleashAnomalies();
+                    }
+                }
+
+                document.getElementById('stamina-bar').style.width = `${currentStamina}%`;
+                document.getElementById('health-bar').style.width = `${health}%`;
+                document.getElementById('food-bar').style.width = `${food}%`;
+                document.getElementById('water-bar').style.width = `${water}%`;
+
+                let isMoving = moveForward || moveBackward || moveLeft || moveRight || moveVector.x !== 0 || moveVector.y !== 0;
+                if (isSprinting && isMoving && currentStamina > 0) {
+                    activeSpeedModifier = sprintSpeed;
+                    currentStamina = Math.max(0, currentStamina - staminaDrainRate);
+                } else {
+                    activeSpeedModifier = walkSpeed;
+                    currentStamina = Math.min(maxStamina, currentStamina + staminaRegenRate);
+                }
+
+                let moveStep = new THREE.Vector3();
+                let forward = new THREE.Vector3(0, 0, -1).applyQuaternion(yawObject.quaternion);
+                let right = new THREE.Vector3(1, 0, 0).applyQuaternion(yawObject.quaternion);
+                forward.y = 0; right.y = 0; forward.normalize(); right.normalize();
+
+                moveStep.addScaledVector(forward, -moveVector.y); moveStep.addScaledVector(right, moveVector.x);
+                if (moveForward) moveStep.add(forward); if (moveBackward) moveStep.sub(forward);
+                if(moveStep.length() > 1) moveStep.normalize();
+                yawObject.position.addScaledVector(moveStep, activeSpeedModifier);
+
+                if (isJumping) {
+                    yawObject.position.y += velocityY; velocityY -= gravity;
+                    if (yawObject.position.y <= 0) { yawObject.position.y = 0; isJumping = false; velocityY = 0; }
+                }
+
+                const playBound = roomHalfSize - 0.8;
+                yawObject.position.x = Math.max(-playBound, Math.min(playBound, yawObject.position.x));
+                yawObject.position.z = Math.max(-playBound, Math.min(playBound, yawObject.position.z));
+
+                if (isMoving && !isJumping) {
+                    let swingSpeed = isSprinting ? 0.015 : 0.009;
+                    let swingAngle = Math.sin(timeToken * swingSpeed) * 0.75;
+                    leftArmGroup.rotation.x = swingAngle; rightArmGroup.rotation.x = -swingAngle;
+                    leftLegGroup.rotation.x = -swingAngle; rightLegGroup.rotation.x = swingAngle;
+                } else {
+                    leftArmGroup.rotation.x = THREE.MathUtils.lerp(leftArmGroup.rotation.x, 0, 0.15);
+                    rightArmGroup.rotation.x = THREE.MathUtils.lerp(rightArmGroup.rotation.x, 0, 0.15);
+                    leftLegGroup.rotation.x = THREE.MathUtils.lerp(leftLegGroup.rotation.x, 0, 0.15);
+                    rightLegGroup.rotation.x = THREE.MathUtils.lerp(rightLegGroup.rotation.x, 0, 0.15);
+                }
+
+                let flatPlayerPos = new THREE.Vector3(yawObject.position.x, 0, yawObject.position.z);
+                let currentRadius = flatPlayerPos.distanceTo(anchorPos);
+                let slackPercent = Math.max(0, Math.floor(((maxChainLength - currentRadius) / maxChainLength) * 100));
+                
+                if(currentRadius < maxChainLength) {
+                    document.getElementById('chain-hud').innerText = `CHAIN TETHER SLACK: ${slackPercent}%`;
+                    document.getElementById('chain-hud').style.color = '#00fffa'; chainIsTaut = false;
+                } else {
+                    document.getElementById('chain-hud').innerText = `TETHER HARNESS RIGID MAXIMUM`;
+                    document.getElementById('chain-hud').style.color = '#ff1133';
+
+                    let radialVector = new THREE.Vector3().subVectors(flatPlayerPos, anchorPos).normalize();
+                    yawObject.position.x = anchorPos.x + radialVector.x * maxChainLength;
+                    yawObject.position.z = anchorPos.z + radialVector.z * maxChainLength;
+
+                    if (!chainIsTaut) {
+                        playChainClankAudio(); shakeStrength = 0.40; 
+                        currentStamina = Math.max(0, currentStamina - 12); chainIsTaut = true;
+                    }
+                }
+
+                if (shakeStrength > 0.005) {
+                    camera.position.x = (Math.random() - 0.5) * shakeStrength; camera.position.y = (Math.random() - 0.5) * shakeStrength;
+                    shakeStrength *= shakeDecay;
+                } else { camera.position.set(0, 0.6, 3.4); }
+
+                let chainPosAttr = chainLineMesh.geometry.attributes.position;
+                chainPosAttr.setXYZ(0, anchorPos.x, 0.08, anchorPos.z); 
+                chainPosAttr.setXYZ(1, yawObject.position.x, 0.75 + yawObject.position.y, yawObject.position.z); 
+                chainPosAttr.needsUpdate = true;
+
+                let prevTarget = currentInteractiveTarget;
+                currentInteractiveTarget = null;
+                interactPrompt.style.display = 'none';
+
+                if (yawObject.position.distanceTo(fridgePos) < 3.5) {
+                    currentInteractiveTarget = 'fridge';
+                    interactPrompt.innerText = "PRESS [E] / TAP TO HARVEST FRIDGE SURFACES";
+                    interactPrompt.style.display = 'block';
+                } else if (yawObject.position.distanceTo(microwavePos) < 3.2) {
+                    currentInteractiveTarget = 'microwave';
+                    interactPrompt.innerText = "PRESS [E] / TAP TO RUN COOKING PROCESSOR";
+                    interactPrompt.style.display = 'block';
+                } else {
+                    Object.keys(doors).forEach(key => {
+                        let d = doors[key];
+                        if (yawObject.position.distanceTo(d.pos) < 5.0 && !d.locked) {
+                            currentInteractiveTarget = key;
+                            interactPrompt.innerText = `PRESS [E] / TAP TO FLIP HATCH ${d.name}`;
+                            interactPrompt.style.display = 'block';
+                        }
+                    });
+                }
+
+                if (prevTarget !== currentInteractiveTarget) { updateMobileUIElements(); }
+
+                let minimumEntityDistance = 999.0;
+                for (let i = 0; i < anomalies.length; i++) {
+                    let ent = anomalies[i]; let config = ent.userData;
+                    let entDir = new THREE.Vector3().subVectors(yawObject.position, ent.position);
+                    let entDist = entDir.length(); if (entDist < minimumEntityDistance) minimumEntityDistance = entDist;
+                    entDir.y = 0; entDir.normalize();
+                    
+                    ent.position.addScaledVector(entDir, 0.085); 
+                    ent.position.y = 2.0 + Math.sin(timeToken * 0.006 + config.seed) * 0.5;
+                    ent.material.rotation = Math.sin(timeToken * 0.008 + config.seed) * 0.2;
+
+                    if (entDist < 1.3) { triggerGameOver("STEVE OVERRUN BY ANOMALIES"); return; }
+                }
+
+                if (anomalies.length > 0 && minimumEntityDistance < 14.0) {
+                    let dangerScale = 1.0 - (minimumEntityDistance / 14.0);
+                    panicOverlay.style.opacity = (Math.sin(timeToken * 0.016) * 0.4 + 0.4) * dangerScale;
+                } else { panicOverlay.style.opacity = '0'; }
+            }
+
+            if (isViewingMonitor && securityCameras[activeCameraKey]) {
+                renderer.render(scene, securityCameras[activeCameraKey]);
+            } else {
+                renderer.render(scene, camera);
+            }
+        }
+
+        function initAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            humOsc = audioCtx.createOscillator(); let humGain = audioCtx.createGain();
+            humOsc.type = 'sine'; humOsc.frequency.setValueAtTime(50, audioCtx.currentTime); 
+            humGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            humOsc.connect(humGain); humGain.connect(audioCtx.destination); humOsc.start();
+        }
+
+        function playChainClankAudio() {
+            let now = Date.now(); if (now - lastChainClankTime < 250) return; lastChainClankTime = now;
+            if (!audioCtx) return;
+            let oscLow = audioCtx.createOscillator(); let oscHigh = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+            oscLow.type = 'triangle'; oscLow.frequency.setValueAtTime(65, audioCtx.currentTime);
+            oscHigh.type = 'sawtooth'; oscHigh.frequency.setValueAtTime(420, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            oscLow.connect(gain); oscHigh.connect(gain); gain.connect(audioCtx.destination);
+            oscLow.start(); oscHigh.start(); oscLow.stop(audioCtx.currentTime + 0.3); oscHigh.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function playAlarmAudio(enable) {
+            if (!audioCtx) return;
+            if (alarmInterval) { clearInterval(alarmInterval); alarmInterval = null; }
+
+            if (enable) {
+                alarmInterval = setInterval(() => {
+                    if (gameEnded) return;
+                    let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(290, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.28);
+                    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                }, 650);
+            }
+        }
+
+        function playLockClickAudio() {
+            if (!audioCtx) return;
+            let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+            osc.type = 'square'; osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function triggerGameOver(reasonText) {
+            gameEnded = true; gameActive = false; playAlarmAudio(false); 
+            if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo();
+            panicOverlay.style.opacity = '0.85'; monitorOverlay.style.display = 'none';
+            document.getElementById('security-hud').style.display = 'none';
+
+            overlay.style.display = 'flex';
+            overlay.style.background = 'radial-gradient(circle, #3a0303 0%, #010101 100%)';
+            document.querySelector('#ui-overlay h1').innerText = "SHIFT TERMINATED";
+            document.querySelector('#ui-overlay h1').style.color = "#ff2222";
+            instructionsText.innerHTML = `${reasonText.toUpperCase()}<br><br><span style='color:#fff;'>TAP HERE TO REBOOT SYSTEM FOR AN ADDITIONAL CYCLE</span>`;
+            
+            document.getElementById('mobile-joystick-zone').style.display = 'none';
+            document.getElementById('mobile-interact-btn').style.display = 'none';
+            document.getElementById('mobile-jump-btn').style.display = 'none';
+            document.getElementById('mobile-monitor-btn').style.display = 'none';
+            document.getElementById('mobile-consume-btn').style.display = 'none';
+        }
+
+        function triggerWinState() {
+            gameEnded = true; gameActive = false; playAlarmAudio(false);
+            if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo();
+            monitorOverlay.style.display = 'none'; document.getElementById('security-hud').style.display = 'none';
+
+            overlay.style.display = 'flex';
+            overlay.style.background = 'radial-gradient(circle, #033a12 0%, #010101 100%)';
+            document.querySelector('#ui-overlay h1').innerText = "06:00 AM";
+            document.querySelector('#ui-overlay h1').style.color = "#00ff66";
+            instructionsText.innerHTML = "SHIFT RECORD COMPLETED.<br><br><span style='color:#fff;'>STEVE SURVIVED THE BIOLOGICAL DECAY AND THE EXTRACTION BOUNDS.</span>";
+            
+            document.getElementById('mobile-joystick-zone').style.display = 'none';
+            document.getElementById('mobile-interact-btn').style.display = 'none';
+            document.getElementById('mobile-jump-btn').style.display = 'none';
+            document.getElementById('mobile-monitor-btn').style.display = 'none';
+            document.getElementById('mobile-consume-btn').style.display = 'none';
+        }
+
+        function onWindowResize() {
+            const aspect = window.innerWidth / window.innerHeight;
+            camera.aspect = aspect; camera.updateProjectionMatrix();
+            Object.keys(securityCameras).forEach(key => {
+                securityCameras[key].aspect = aspect; securityCameras[key].updateProjectionMatrix();
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        window.onload = init;
+    </script>
+    <div class="device">
+  <div class="content">
+    <h1>System Status</h1>
+    <p>Everything is functioning normally.</p>
+  </div>
+  
+  <div class="cracked-overlay"></div>
+</div>
+
+<script></script></body></html>
